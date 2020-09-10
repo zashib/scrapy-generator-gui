@@ -7,13 +7,20 @@ import threading
 
 SETTINGS = ['default settings', 'proxy', 'images(default)', 'images(named)', 'headers', 'csv', 'json']
 
+
+def to_dict(**kwargs):
+    """Create a dictionary from keyword arguments"""
+    dict = locals()
+    return dict['kwargs']
+
+
 class GenGui(tk.Tk):
     items_list = []
 
     def __init__(self, width=15, text='', onvalue=1, offvalue=0):
         super().__init__()
 
-        self.ch_btn = self.to_dict(onvalue=onvalue, offvalue=offvalue, width=width)
+        self.ch_btn = to_dict(onvalue=onvalue, offvalue=offvalue, width=width)
         self.dest_dir = 'test_test'
         self.start_url = 'https://test.ru'
         self.settings_list = []
@@ -28,7 +35,7 @@ class GenGui(tk.Tk):
 
         # Add frames
         self.head_frame = ttk.Frame(self)
-        self.head_frame.grid(row=0,column=0)
+        self.head_frame.grid(row=0, column=0)
         self.check_frame = ttk.Frame(self)
         self.check_frame.grid(row=1, column=0)
         self.space_frame = ttk.Frame(self, height=10)
@@ -65,13 +72,8 @@ class GenGui(tk.Tk):
         gen_btn = ttk.Button(self.gen_frame, text='Generate', width=8, command=self.generate).grid(row=0, column=0)
         gen_btn = ttk.Button(self.gen_frame, text='Run shell', width=8, command=self.run_shell).grid(row=0, column=1)
 
-    def to_dict(self, **kwargs):
-        '''Create a dictionary from keyword arguments'''
-        dict = locals()
-        return dict['kwargs']
-
     def check_var(self):
-        '''Check variable values'''
+        """Check variable values"""
         temp_vars = []
         for index, var in enumerate(self.all_variables):
             if var.get() != self.status_list[index]:
@@ -82,7 +84,7 @@ class GenGui(tk.Tk):
                 self.status_list[index] = var.get()
 
     def gen_chk_btn(self):
-        '''Create Checkbutton according to SETTINGS'''
+        """Create Checkbutton according to SETTINGS"""
         row = 0
         column = 0
         for index, name in enumerate(SETTINGS):
@@ -92,16 +94,17 @@ class GenGui(tk.Tk):
             var = tk.BooleanVar()
             self.all_variables.append(var)
             self.status_list.append(var.get())
-            ttk.Checkbutton(self.check_frame, text=name, variable=var, **self.ch_btn, command=self.check_var).grid(row=row, column=column)
+            ttk.Checkbutton(self.check_frame, text=name, variable=var, **self.ch_btn, command=self.check_var).grid(
+                row=row, column=column)
             column += 1
 
     def add_entry(self):
-        '''Add Entry'''
+        """Add Entry"""
         if self.row_count % 30 == 0 and self.row_count != 0:
             self.column_count += 3
             self.row_count = 0
 
-        ent = ttk.Label(self.add_frame, text='Item'+str(self.count), width=8)
+        ent = ttk.Label(self.add_frame, text='Item' + str(self.count), width=8)
         ent.grid(row=self.row_count + 1, column=self.column_count)
 
         # Add entry in second row
@@ -117,7 +120,7 @@ class GenGui(tk.Tk):
         self.count += 1
 
     def generate(self):
-        '''Generate python code'''
+        """Generate python code"""
         items = []
         items_path = []
 
@@ -125,12 +128,14 @@ class GenGui(tk.Tk):
             items.append(item_name.get())
             items_path.append(item_path.get())
 
-        scrapy_gen.ScrapyGen(items=items, items_path=items_path,  settings_list=self.settings_list, dest_dir=self.dest_dir.get(),  start_url=self.start_url.get())
+        scrapy_gen.ScrapyGen(items=items, items_path=items_path, settings_list=self.settings_list,
+                             dest_dir=self.dest_dir.get(), start_url=self.start_url.get())
 
     def run_shell(self):
-        '''Run scrapy shell'''
-        my_thread = threading.Thread(target=os.system, args=('scrapy shell "%s"'%self.start_url.get(),))
+        """Run scrapy shell"""
+        my_thread = threading.Thread(target=os.system, args=('scrapy shell "%s"' % self.start_url.get(),))
         my_thread.start()
+
 
 if __name__ == '__main__':
     ui = GenGui()
